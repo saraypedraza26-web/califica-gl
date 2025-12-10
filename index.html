@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>GLS - Califica tu GL favorito</title>
+<style>
+  :root{
+    --bg:#fff6fb;
+    --card:#ffffff;
+    --accent:#ff6aa4;
+    --soft:#fff0f7;
+    --gold:#f2c94c;
+    --muted:#6f5160;
+    --text:#3a2230;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:"Poppins","Arial",sans-serif;background:var(--bg);color:var(--text);}
+
+  header{
+    position:sticky; top:0; z-index:50;
+    display:flex;align-items:center;gap:16px;justify-content:space-between;
+    padding:14px 28px;
+    background:linear-gradient(180deg, rgba(255,244,250,1), rgba(255,241,247,0.95));
+    box-shadow:0 4px 12px rgba(196,130,162,0.08);
+  }
+  .logo-wrap{display:flex;align-items:center;gap:10px}
+  .logo-big{display:flex;align-items:center;gap:10px;font-weight:800;color:var(--text)}
+  .logo-big .mark{font-size:38px;color:var(--accent);background:linear-gradient(90deg,#ffd6ec,#ff9fcf);padding:8px 12px;border-radius:10px;box-shadow:0 6px 14px rgba(255,122,170,0.12)}
+  .site-sub{color:#7a5364;font-weight:600;font-size:16px}
+
+  .search-wrap{flex:1;display:flex;justify-content:center}
+  .search-wrap input{width:60%;min-width:220px;padding:10px 16px;border-radius:24px;border:1px solid #f0cde0;background:var(--soft);outline:none;font-size:15px;box-shadow:0 2px 8px rgba(210,160,190,0.04)}
+
+  .login-btn{background:var(--accent);color:#fff;border:none;padding:6px 14px;border-radius:18px;font-weight:700;font-size:13px;cursor:pointer;box-shadow:0 6px 12px rgba(255,106,164,0.10)}
+
+  h1.title{text-align:center;margin:24px 0 12px;color:var(--text);font-size:26px;letter-spacing:0.2px}
+
+  .container{width:92%;max-width:1200px;margin:0 auto 60px}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:20px}
+
+  .card{background:var(--card);border-radius:14px;overflow:hidden;box-shadow:0 8px 20px rgba(190,140,170,0.06);transition:transform .18s ease,box-shadow .18s ease;position:relative;padding-bottom:12px}
+  .card:hover{transform:translateY(-6px);box-shadow:0 18px 36px rgba(190,140,170,0.10)}
+  .poster{width:100%;height:280px;object-fit:cover;display:block;border-bottom-left-radius:10px;border-bottom-right-radius:10px}
+  .card-body{padding:12px 14px;display:flex;flex-direction:column;gap:8px;align-items:center}
+  .card h3{font-size:15px;color:var(--text);text-align:center;margin:2px 0 0;min-height:38px}
+  .small-stats{display:flex;gap:8px;align-items:center;font-size:13px;color:var(--muted)}
+  .stars-inline{font-size:16px;color:var(--gold);cursor:pointer;user-select:none;letter-spacing:2px}
+  .score-badge{position:absolute;left:12px;top:12px;background:linear-gradient(180deg,#fff0f6,#ffdfe9);color:var(--accent);padding:8px 10px;border-radius:10px;font-weight:800;font-size:16px;box-shadow:0 6px 14px rgba(255,150,190,0.06)}
+  .crown{position:absolute;right:12px;top:10px;font-size:24px;display:none;filter:drop-shadow(0 6px 8px rgba(0,0,0,0.08))}
+
+  .comment-area{width:100%;padding:0 14px;display:flex;flex-direction:column;gap:8px;margin-top:6px}
+  .comment-area textarea{width:100%;min-height:56px;resize:vertical;padding:8px 10px;border-radius:10px;border:1px solid #f0cde0;background:#fff7fb;font-size:13px}
+  .comment-area button{align-self:stretch;padding:9px;border-radius:10px;border:none;background:var(--accent);color:#fff;font-weight:700;cursor:pointer}
+
+  .panel-bg{position:fixed;inset:0;background:rgba(0,0,0,0.45);display:none;justify-content:center;align-items:flex-start;padding:40px;overflow:auto;z-index:80}
+  .panel{width:90%;max-width:1100px;background:#fff;border-radius:14px;padding:22px;display:grid;grid-template-columns:320px 1fr;gap:22px;box-shadow:0 18px 50px rgba(130,60,100,0.08)}
+  .panel-left img{width:100%;height:460px;object-fit:cover;border-radius:10px}
+  .panel-right{display:flex;flex-direction:column;gap:12px}
+  .panel-title{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
+  .panel-title h2{color:var(--text);margin:0 0 4px;font-size:22px}
+  .btn-close{background:#ffe9f4;border:none;color:#b13a6a;padding:6px 10px;border-radius:8px;cursor:pointer}
+
+  .rating-block{background:linear-gradient(180deg,#fff6fb,#fff0f7);border-radius:12px;padding:14px;display:flex;gap:12px;align-items:center;box-shadow:0 6px 18px rgba(255,130,175,0.04)}
+  .big-score{width:84px;height:84px;border-radius:12px;background:linear-gradient(180deg,#ffb7d5,#ff88be);display:flex;align-items:center;justify-content:center;color:white;font-weight:800;font-size:30px;box-shadow:inset 0 -6px 18px rgba(0,0,0,0.04)}
+  .rating-info{display:flex;flex-direction:column;gap:6px;font-size:14px;color:#443049}
+  .rating-info .line{display:flex;gap:8px;align-items:center}
+  .rating-info .label{color:#6e4e66;font-size:13px}
+
+  .panel-right .meta{background:#fff;padding:12px;border-radius:10px;box-shadow:0 6px 18px rgba(200,150,180,0.03)}
+  .meta dl{display:grid;grid-template-columns:110px 1fr;gap:6px 12px;font-size:14px;align-items:start}
+  .meta dt{color:#6e4e66;font-weight:700}
+  .meta dd{margin:0;color:#3b2a34}
+
+  .desc{color:#3b2a34;line-height:1.5;font-size:15px;margin-top:6px}
+  .comments-list{margin-top:8px;padding:10px;background:#fff6fb;border-radius:10px;max-height:160px;overflow:auto}
+  .comments-list p{margin:8px 0;font-size:14px;color:#35262f}
+
+  @media (max-width:900px){
+    .panel{grid-template-columns:1fr}
+    .panel-left img{height:300px}
+    .search-wrap input{width:80%}
+    .grid{grid-template-columns:repeat(auto-fill,minmax(160px,1fr))}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo-wrap">
+    <div class="logo-big"><div class="mark">GLS</div><div class="site-sub">Mar Largo</div></div>
+  </div>
+
+  <div class="search-wrap">
+    <input id="searchInput" placeholder="Buscar serie..." oninput="renderGrid()" />
+  </div>
+
+  <button class="login-btn">Iniciar sesión</button>
+</header>
+
+<h1 class="title">Califica tu GL favorito</h1>
+
+<main class="container">
+  <div id="grid" class="grid"></div>
+</main>
+
+<!-- INFO PANEL -->
+<div id="panelBg" class="panel-bg" role="dialog" aria-hidden="true">
+  <div class="panel" id="panel" aria-live="polite">
+    <div class="panel-left">
+      <img id="posterLarge" src="" alt="Poster serie" />
+    </div>
+
+    <div class="panel-right">
+      <div class="panel-title">
+        <div>
+          <h2 id="panelTitle">Título</h2>
+          <div style="color:#7b5964;font-size:13px" id="panelSub">También conocida como · año</div>
+        </div>
+        <div>
+          <button class="btn-close" onclick="closePanel()">Cerrar</button>
+        </div>
+      </div>
+
+      <div class="rating-block" aria-hidden="false">
+        <div class="big-score" id="bigScore">8.4</div>
+        <div class="rating-info">
+          <div class="line" style="align-items:center">
+            <div class="label">Tu puntuación:</div>
+            <div id="panelStars" style="font-size:18px;color:var(--gold);cursor:pointer"></div>
+            <div id="panelYourScore" style="color:#6e4e66;font-weight:700;margin-left:6px">0/10</div>
+          </div>
+          <div class="line"><div class="label">Puntuación general:</div><div id="panelAvg" style="font-weight:800">8.4/10</div></div>
+          <div class="line"><div class="label"># de fans:</div><div id="panelFans">0</div></div>
+          <div class="line"><div class="label">Reseñas:</div><div id="panelReviews">0 usuarios</div></div>
+        </div>
+      </div>
+
+      <div class="meta" aria-labelledby="metaTitle">
+        <dl>
+          <dt>Título original:</dt><dd id="metaOriginal">—</dd>
+          <dt>Director:</dt><dd id="metaDirector">—</dd>
+          <dt>Guionista:</dt><dd id="metaWriter">—</dd>
+          <dt>Géneros:</dt><dd id="metaGenres">—</dd>
+          <dt>Etiquetas:</dt><dd id="metaTags">—</dd>
+          <dt>Reparto:</dt><dd id="metaCast">—</dd>
+        </dl>
+      </div>
+
+      <div>
+        <div class="section">
+          <h4 style="margin-bottom:6px;color:var(--text)">Sinopsis</h4>
+          <div id="panelDescription" class="desc">—</div>
+        </div>
+
+        <div style="display:flex;gap:10px;margin-top:12px;align-items:center">
+          <button onclick="addToList()" style="background:var(--accent);color:white;border:none;padding:10px 14px;border-radius:10px;font-weight:700;cursor:pointer">+ Añadir a mi lista</button>
+          <button style="background:#fff;border:1px solid #f0cde0;padding:10px 12px;border-radius:10px;cursor:pointer">Comprar merch</button>
+        </div>
+
+        <div style="margin-top:12px;">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <h4 style="color:var(--text)">Comentarios</h4>
+            <div style="color:#7b5964;font-size:13px" id="panelVotesInfo">—</div>
+          </div>
+
+          <div style="margin-top:8px;display:flex;gap:10px;">
+            <textarea id="panelComment" placeholder="Escribe tu comentario..." style="flex:1;min-height:64px;border-radius:10px;padding:10px;border:1px solid #f0cde0"></textarea>
+            <button onclick="saveCommentPanel()" style="background:var(--accent);color:#fff;border:none;border-radius:10px;padding:10px 12px;cursor:pointer">Guardar</button>
+          </div>
+
+          <div class="comments-list" id="panelComments"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* --------------------------
+  Todas las series: originales + nuevas
+---------------------------*/
+const initialSeries = [
+  "GAP the series","The Secret of Us","Affair","Pluto","Denied Love",
+  "The Loyal Pin","Roller Coaster","Blank the Series","Somewhere Somehow",
+  "Harmony Secret","Poisonous Love","Dangerous Queen",
+  "Show Me Love","Love Senior","23.5","My Marvellous Dream is You",
+  "Deep Night Side Story","Reverse 4 You","Unlock Your Love","Apple My Love",
+  "Mhom Ped Sawan","Petricor","Mate","Us","Reverse With Me","I'm Your Moon",
+  "Whale Store XOXO","Only You","Queendom","Love Design","Player",
+  "Unlimited Love","My Safe Zone","Clairebell","Runaway","Like a Palette",
+  "Play Park","My Only Sunshine","Girl Rules","Enemies With Benefits","Cranium"
+];
+
+/* Crea metadatos y mapea nombres de archivo consistentes en /images/ */
+const db = {};
+initialSeries.forEach(name=>{
+  const fnameMap = {
+    "GAP the series":"gap.jpg",
+    "The Secret of Us":"secret-of-us.jpg",
+    "Affair":"affair.jpg",
+    "Pluto":"pluto.jpg",
+    "Denied Love":"denied-love.jpg",
+    "The Loyal Pin":"loyal-pin.jpg",
+    "Roller Coaster":"roller-coaster.jpg",
+    "Blank the Series":"blank.jpg",
+    "Somewhere Somehow":"somewhere-somehow.jpg",
+    "Harmony Secret":"harmony-secret.jpg",
+    "Poisonous Love":"poisonous-love.jpg",
+    "Dangerous Queen":"dangerous-queen.jpg",
+    "Show Me Love":"show-me-love.jpg",
+    "Love Senior":"love-senior.jpg",
+    "23.5":"23-5.jpg",
+    "My Marvellous Dream is You":"my-marvellous-dream.jpg",
+    "Deep Night Side Story":"deep-night-side.jpg",
+    "Reverse 4 You":"reverse-4-you.jpg",
+    "Unlock Your Love":"unlock-your-love.jpg",
+    "Apple My Love":"apple-my-love.jpg",
+    "Mhom Ped Sawan":"mhom-ped-sawan.jpg",
+    "Petricor":"petricor.jpg",
+    "Mate":"mate.jpg",
+    "Us":"us.jpg",
+    "Reverse With Me":"reverse-with-me.jpg",
+    "I'm Your Moon":"im-your-moon.jpg",
+    "Whale Store XOXO":"whale-store.jpg",
+    "Only You":"only-you.jpg",
+    "Queendom":"queendom.jpg",
+    "Love Design":"love-design.jpg",
+    "Player":"player.jpg",
+    "Unlimited Love":"unlimited-love.jpg",
+    "My Safe Zone":"my-safe-zone.jpg",
+    "Clairebell":"clairebell.jpg",
+    "Runaway":"runaway.jpg",
+    "Like a Palette":"like-a-palette.jpg",
+    "Play Park":"play-park.jpg",
+    "My Only Sunshine":"my-only-sunshine.jpg",
+    "Girl Rules":"girl-rules.jpg",
+    "Enemies With Benefits":"enemies-with-benefits.jpg",
+    "Cranium":"cranium.jpg"
+  }[name] || 'placeholder.jpg';
+
+  db[name] = {
+    title: name,
+    poster: `images/${fnameMap}`,
+    description: `Sinopsis breve de ${name} — reemplázala por la real.`,
+    year: "2023",
+    original: name,
+    aka: "—",
+    director: "—",
+    writer: "—",
+    genres: "GL, Romance, Drama",
+    tags: "LGBTQ+, Romance, Drama",
+    cast: "Actriz A, Actriz B"
+  };
+});
+
+/* localStorage helpers */
+function getRatingsKey(name){ return `ratings_${name}`; }
+function getCommentsKey(name){ return `comments_${name}`; }
+function getRatings(name){ try{ return JSON.parse(localStorage.getItem(getRatingsKey(name)) || "[]"); } catch(e){return []} }
+function getComments(name){ try{ return JSON.parse(localStorage.getItem(getCommentsKey(name)) || "[]"); } catch(e){return []} }
+function saveRatings(name, arr){ localStorage.setItem(getRatingsKey(name), JSON.stringify(arr)); }
+function saveComments(name, arr){ localStorage.setItem(getCommentsKey(name), JSON.stringify(arr)); }
+
+/* compute helpers */
+function averageScore10(name){
+  const r = getRatings(name);
+  if(!r.length) return 0;
+  const avgStars = r.reduce((a,b)=>a+b,0)/r.length;
+  return Math.round((avgStars*2)*10)/10;
+}
+function fansCount(name){ return getRatings(name).length; }
+function reviewsCount(name){ return getComments(name).length; }
+
+/* render grid */
+const grid = document.getElementById('grid');
+function renderGrid(){
+  const q = (document.getElementById('searchInput').value || '').toLowerCase().trim();
+  grid.innerHTML = '';
+  initialSeries.forEach(name=>{
+    if(q && !name.toLowerCase().includes(q)) return;
+    const meta = db[name];
+    const avg = averageScore10(name);
+    const fans = fansCount(name);
+    const reviews = reviewsCount(name);
+    const crownVisible = fans >= 15;
+
+    const card = document.createElement('div');
+    card.className = 'card';
+    card.innerHTML = `
+      <div style="position:relative">
+        <img class="poster" src="${meta.poster}" alt="${meta.title}">
+        <div class="score-badge">${avg?avg.toFixed(1):'—'}</div>
+        <div class="crown" ${crownVisible?`style="display:block"`:''}>👑</div>
+      </div>
+      <div class="card-body">
+        <h3 data-name="${name}">${meta.title}</h3>
+        <div class="small-stats">
+          <div class="stars-inline" data-name="${name}">${renderInlineStars(name)}</div>
+          <div style="color:#7b5964;font-size:13px">· ${fans} votos</div>
+        </div>
+
+        <div class="comment-area">
+          <textarea placeholder="Escribe un comentario..." data-name="${name}"></textarea>
+          <button data-name="${name}" class="btn-save">Guardar</button>
+        </div>
+      </div>
+    `;
+    // open panel
+    card.querySelector('.poster').addEventListener('click', ()=>openPanel(name));
+    card.querySelector('h3').addEventListener('click', ()=>openPanel(name));
+    // inline star clicks
+    const starsInline = card.querySelector('.stars-inline');
+    starsInline.querySelectorAll('span').forEach(span=>{
+      span.style.cursor = 'pointer';
+      span.addEventListener('click', ()=>{
+        const v = Number(span.dataset.value);
+        addRating(name, v);
+        renderGrid();
+      });
+    });
+    // save comment
+    card.querySelector('.btn-save').addEventListener('click', ()=>{
+      const ta = card.querySelector('textarea');
+      const text = ta.value.trim();
+      if(!text) return;
+      const arr = getComments(name);
+      arr.push(text);
+      saveComments(name, arr);
+      ta.value = '';
+      renderGrid();
+    });
+
+    grid.appendChild(card);
+  });
+}
+function renderInlineStars(name){
+  const avg = averageScore10(name);
+  let highlighted = 0;
+  if(avg>0) highlighted = Math.round((avg/10)*5);
+  let stars = '';
+  for(let i=1;i<=5;i++){
+    stars += `<span data-value="${i}" style="color:${i<=highlighted? 'var(--gold)':'#e6e6e6'}">★</span>`;
+  }
+  return stars;
+}
+
+/* add rating */
+function addRating(name, starValue){
+  const arr = getRatings(name);
+  arr.push(starValue);
+  saveRatings(name, arr);
+}
+
+/* panel logic */
+const panelBg = document.getElementById('panelBg');
+const posterLarge = document.getElementById('posterLarge');
+const panelTitle = document.getElementById('panelTitle');
+const panelSub = document.getElementById('panelSub');
+const panelDescription = document.getElementById('panelDescription');
+const panelAvg = document.getElementById('panelAvg');
+const bigScore = document.getElementById('bigScore');
+const panelFans = document.getElementById('panelFans');
+const panelReviews = document.getElementById('panelReviews');
+const panelComments = document.getElementById('panelComments');
+const panelYourScore = document.getElementById('panelYourScore');
+const panelStars = document.getElementById('panelStars');
+
+let currentOpen = null;
+
+function openPanel(name){
+  currentOpen = name;
+  const m = db[name];
+  posterLarge.src = m.poster;
+  panelTitle.textContent = m.title;
+  panelSub.textContent = `${m.aka || '—'} · ${m.year || '—'}`;
+  panelDescription.textContent = m.description;
+  document.getElementById('metaOriginal').textContent = m.original || '—';
+  document.getElementById('metaDirector').textContent = m.director || '—';
+  document.getElementById('metaWriter').textContent = m.writer || '—';
+  document.getElementById('metaGenres').textContent = m.genres || '—';
+  document.getElementById('metaTags').textContent = m.tags || '—';
+  document.getElementById('metaCast').textContent = m.cast || '—';
+
+  const avg = averageScore10(name);
+  const fans = fansCount(name);
+  const reviews = reviewsCount(name);
+  bigScore.textContent = avg? avg.toFixed(1) : '—';
+  panelAvg.textContent = avg? `${avg.toFixed(1)}/10` : '—/10';
+  panelFans.textContent = fans;
+  panelReviews.textContent = `${reviews} usuarios`;
+  const panelVotesInfo = document.getElementById('panelVotesInfo');
+  if(panelVotesInfo) panelVotesInfo.textContent = `${reviews} reseñas • ${fans} votos`;
+
+  const comms = getComments(name);
+  panelComments.innerHTML = comms.length? comms.map(c=>`<p>• ${escapeHtml(c)}</p>`).join('') : '<p style="color:#7b5964">Sé el primero en comentar</p>';
+
+  const ratings = getRatings(name);
+  let yourLast = ratings.length? ratings[ratings.length-1] : null;
+  if(yourLast){
+    const yourScore10 = yourLast*2;
+    panelYourScore.textContent = `${yourScore10}/10`;
+    updatePanelStars(yourLast);
+  } else {
+    panelYourScore.textContent = `0/10`;
+    updatePanelStars(0);
+  }
+
+  panelBg.style.display = 'flex';
+  panelBg.setAttribute('aria-hidden','false');
+}
+
+function updatePanelStars(stars){
+  panelStars.innerHTML = '';
+  for(let i=1;i<=5;i++){
+    const s = document.createElement('span');
+    s.textContent = '★';
+    s.dataset.value = i;
+    s.style.cursor = 'pointer';
+    s.style.paddingRight = '6px';
+    s.style.color = i<=stars? 'var(--gold)':'#e6e6e6';
+    s.addEventListener('click', ()=>{
+      addRating(currentOpen, i);
+      const yourScore10 = i*2;
+      panelYourScore.textContent = `${yourScore10}/10`;
+      const avg = averageScore10(currentOpen);
+      bigScore.textContent = avg?avg.toFixed(1):'—';
+      panelAvg.textContent = avg? `${avg.toFixed(1)}/10` : '—/10';
+      panelFans.textContent = fansCount(currentOpen);
+      panelReviews.textContent = `${reviewsCount(currentOpen)} usuarios`;
+      renderGrid();
+      updatePanelStars(i);
+    });
+    panelStars.appendChild(s);
+  }
+}
+
+function saveCommentPanel(){
+  const txt = document.getElementById('panelComment').value.trim();
+  if(!txt) return;
+  const arr = getComments(currentOpen);
+  arr.push(txt);
+  saveComments(currentOpen, arr);
+  document.getElementById('panelComment').value = '';
+  const comms = getComments(currentOpen);
+  panelComments.innerHTML = comms.map(c=>`<p>• ${escapeHtml(c)}</p>`).join('');
+  renderGrid();
+}
+
+function closePanel(){
+  panelBg.style.display = 'none';
+  panelBg.setAttribute('aria-hidden','true');
+  currentOpen = null;
+}
+function escapeHtml(s){ return s.replace(/[&<>"']/g,tag=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[tag])); }
+function addToList(){ alert('Añadido a tu lista (simulado).') }
+
+/* inicializa */
+renderGrid();
+updatePanelStars(0);
+
+/* accesos rapidos */
+document.getElementById('panelComment').addEventListener('keydown', function(e){ if(e.ctrlKey && e.key === 'Enter'){ saveCommentPanel(); }});
+document.getElementById('searchInput').addEventListener('input', renderGrid);
+</script>
+</body>
+</html>
